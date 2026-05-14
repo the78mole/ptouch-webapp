@@ -3,13 +3,15 @@
 # Prerequisites (one-time, in repo Settings → Pages):
 #   Source: "GitHub Actions"
 #
-# This workflow builds the Vite SPA and publishes the dist/ folder via the
-# official GitHub Pages deployment pipeline (configure-pages →
-# upload-pages-artifact → deploy-pages).
+# This workflow:
+#   1. Computes a semantic version with paulhatch/semantic-version
+#   2. Builds the Vite SPA (version baked in via VITE_APP_VERSION)
+#   3. Creates a GitHub Release with commit messages (push to main only)
+#   4. Deploys the dist/ folder to GitHub Pages
 #
 # Triggers:
 #   • Push to main branch
-#   • Manual run via GitHub UI (Actions → "Deploy to GitHub Pages" → Run workflow)
+#   • Manual run via GitHub UI
 
 name: Deploy to GitHub Pages
 
@@ -25,9 +27,11 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
-# Grant the GITHUB_TOKEN the minimum permissions needed by deploy-pages.
+# contents: write  → create GitHub releases + tags
+# pages:   write   → deploy to GitHub Pages
+# id-token: write  → OIDC for Pages deployment
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -36,9 +40,27 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
 
+    outputs:
+      version_tag: ${{ steps.semver.outputs.version_tag }}
+
     steps:
-      - name: Checkout
+      - name: Checkout (full history for semver)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute semantic version
+        id: semver
+        uses: paulhatch/semantic-version@v5.4.0
+        with:
+          tag_prefix: "v"
+          # Commit-message tokens that trigger major / minor bumps.
+          # Everything else (including no token) bumps the patch.
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          version_format: "${major}.${minor}.${patch}"
+          # Bump patch on every commit so each push produces a unique version.
+          bump_each_commit: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -52,14 +74,57 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Get build date (UTC)
+        id: date
+        run: echo "date=$(date -u +'%Y-%m-%d %H:%M')" >> "$GITHUB_OUTPUT"
+
       - name: Build with Vite
         run: npm run build
+        env:
+          VITE_APP_VERSION: ${{ steps.semver.outputs.version_tag }}
+          VITE_APP_BUILD_DATE: ${{ steps.date.outputs.date }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload the entire dist/ output directory
           path: dist
+
+  release:
+    name: Release
+    needs: build
+    # Only create a release on real pushes, not on manual workflow_dispatch.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Find the previous tag; fall back to the first commit if none exists.
+          PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null \
+                 || git rev-list --max-parents=0 HEAD)
+          NOTES=$(git log "${PREV}..HEAD" \
+                    --pretty=format:"- %s" \
+                    --no-merges)
+          # Write multi-line output safely via the Actions file-based API.
+          {
+            echo "notes<<EOF"
+            echo "${NOTES}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.version_tag }}
+          name: Release ${{ needs.build.outputs.version_tag }}
+          body: ${{ steps.changelog.outputs.notes }}
+          make_latest: true
 
   deploy:
     name: Deploy

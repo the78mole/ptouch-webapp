@@ -17,4 +17,14 @@ export default defineConfig({
     outDir: "../dist",
     emptyOutDir: true,
   },
+
+  // Inject app version and build date at compile time.
+  // Values come from env vars set by CI; local dev falls back to sensible defaults.
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.VITE_APP_VERSION ?? "vX.DEV"),
+    __APP_BUILD_DATE__: JSON.stringify(
+      process.env.VITE_APP_BUILD_DATE ??
+        new Date().toISOString().slice(0, 16).replace("T", " "),
+    ),
+  },
 });
