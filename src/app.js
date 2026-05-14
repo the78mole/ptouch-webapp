@@ -41,6 +41,16 @@ const statusText = /** @type {HTMLSpanElement}    */ (
   document.getElementById("status-text")
 );
 
+const btHelpBox = /** @type {HTMLElement}        */ (
+  document.getElementById("bt-help-box")
+);
+const btHelpDismiss = /** @type {HTMLButtonElement} */ (
+  document.getElementById("bt-help-dismiss")
+);
+const btHelpShow = /** @type {HTMLButtonElement}   */ (
+  document.getElementById("bt-help-show")
+);
+
 const logToggle = /** @type {HTMLInputElement}   */ (
   document.getElementById("log-toggle")
 );
@@ -385,6 +395,7 @@ function saveSettings() {
     qrPos: checkedQr?.value ?? "off",
     qrText: qrTextInput.value,
     qrEc: selectedQrEc(),
+    btHelpHidden: btHelpBox.classList.contains("hidden"),
   };
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -426,10 +437,24 @@ function loadSettings() {
   if (settings.qrEc !== undefined) {
     for (const p of qrEcPills) p.checked = p.value === settings.qrEc;
   }
+  if (settings.btHelpHidden) btHelpBox.classList.add("hidden");
 }
 
 // Restore saved settings before the first render.
 loadSettings();
+
+// ─── Bluetooth help box ───────────────────────────────────────────────────────
+
+btHelpDismiss.addEventListener("click", () => {
+  btHelpBox.classList.add("hidden");
+  saveSettings();
+});
+
+btHelpShow.addEventListener("click", () => {
+  btHelpBox.classList.remove("hidden");
+  btHelpBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  saveSettings();
+});
 
 // ─── UI event listeners ───────────────────────────────────────────────────────
 
