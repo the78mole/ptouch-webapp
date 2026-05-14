@@ -5,8 +5,8 @@
  * MTU-limited chunked writes (≤512 bytes per write without response).
  */
 
-const SERVICE_UUID   = '0000ff00-0000-1000-8000-00805f9b34fb';
-const WRITE_CHAR_UUID = '0000ff01-0000-1000-8000-00805f9b34fb';
+const SERVICE_UUID = "0000ff00-0000-1000-8000-00805f9b34fb";
+const WRITE_CHAR_UUID = "0000ff01-0000-1000-8000-00805f9b34fb";
 
 /** Maximum bytes per BLE write-without-response packet */
 const CHUNK_SIZE = 512;
@@ -48,19 +48,19 @@ export class BluetoothManager {
   async connect() {
     if (!navigator.bluetooth) {
       throw new Error(
-        'Web Bluetooth API is not supported in this browser. ' +
-        'Use Chrome/Edge over HTTPS or localhost.',
+        "Web Bluetooth API is not supported in this browser. " +
+          "Use Chrome/Edge over HTTPS or localhost.",
       );
     }
 
     this.#intentionalDisconnect = false;
 
     this.#device = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: 'PT-' }],
+      filters: [{ namePrefix: "PT-" }],
       optionalServices: [SERVICE_UUID],
     });
 
-    this.#device.addEventListener('gattserverdisconnected', () => {
+    this.#device.addEventListener("gattserverdisconnected", () => {
       this.#onGattDisconnected();
     });
 
@@ -77,7 +77,7 @@ export class BluetoothManager {
       this.#device.gatt.disconnect();
     }
     this.#writeChar = null;
-    this.#notifyStatus('disconnected');
+    this.#notifyStatus("disconnected");
   }
 
   /**
@@ -88,7 +88,7 @@ export class BluetoothManager {
    */
   async sendData(buffer) {
     if (!this.isConnected()) {
-      throw new Error('Printer is not connected.');
+      throw new Error("Printer is not connected.");
     }
 
     const data = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
@@ -99,7 +99,9 @@ export class BluetoothManager {
       await this.#writeChar.writeValueWithoutResponse(chunk);
       offset += CHUNK_SIZE;
       if (offset < data.length) {
-        await new Promise(resolve => setTimeout(resolve, INTER_CHUNK_DELAY_MS));
+        await new Promise((resolve) =>
+          setTimeout(resolve, INTER_CHUNK_DELAY_MS),
+        );
       }
     }
   }
@@ -107,20 +109,20 @@ export class BluetoothManager {
   // ─── Private helpers ──────────────────────────────────────────
 
   async #connectGatt() {
-    const server  = await this.#device.gatt.connect();
+    const server = await this.#device.gatt.connect();
     const service = await server.getPrimaryService(SERVICE_UUID);
     this.#writeChar = await service.getCharacteristic(WRITE_CHAR_UUID);
-    this.#notifyStatus('connected');
+    this.#notifyStatus("connected");
   }
 
   #onGattDisconnected() {
     this.#writeChar = null;
     if (this.#intentionalDisconnect) {
-      this.#notifyStatus('disconnected');
+      this.#notifyStatus("disconnected");
       return;
     }
     // Unexpected disconnect — attempt reconnection with back-off
-    this.#notifyStatus('disconnected');
+    this.#notifyStatus("disconnected");
     this.#scheduleReconnect(RECONNECT_DELAY_MS);
   }
 
@@ -128,7 +130,7 @@ export class BluetoothManager {
     if (!this.#device || this.#intentionalDisconnect) return;
     setTimeout(async () => {
       if (this.isConnected() || this.#intentionalDisconnect) return;
-      this.#notifyStatus('reconnecting');
+      this.#notifyStatus("reconnecting");
       try {
         await this.#connectGatt();
       } catch {
