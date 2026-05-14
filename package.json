@@ -1,0 +1,16 @@
+{
+  "name": "ptouch-webapp",
+  "version": "1.0.0",
+  "description": "Brother P-Touch Label Printer Web App via Web Bluetooth",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "tailwindcss": "^4.3.0",
+    "vite": "^8.0.13"
+  }
+}
