@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* Also scan translation files so Tailwind keeps classes used in dynamic HTML. */
+@source "./locales";
+
+/* ─── Language switcher ─────────────────────────────────────── */
+.lang-btn {
+  opacity: 0.4;
+  filter: grayscale(0.25);
+  transition:
+    opacity 0.15s,
+    filter 0.15s,
+    box-shadow 0.15s;
+}
+.lang-btn:hover {
+  opacity: 0.75;
+  filter: grayscale(0);
+}
+.lang-btn[aria-pressed="true"] {
+  opacity: 1;
+  filter: grayscale(0);
+  box-shadow: 0 0 0 1.5px rgb(147 197 253 / 0.55); /* blue-300/55 */
+}
+
 /* ─── Toggle switch ─────────────────────────────────────────── */
 .toggle-track {
   position: relative;

@@ -8,6 +8,7 @@
 import "./style.css";
 import QRCode from "qrcode";
 import { SerialManager } from "./serial.js";
+import { t, getLocale, setLocale, applyTranslations } from "./i18n.js";
 import {
   buildPrintJob,
   buildStatusRequest,
@@ -57,6 +58,13 @@ const btHelpDismiss = /** @type {HTMLButtonElement} */ (
 );
 const btHelpShow = /** @type {HTMLButtonElement}   */ (
   document.getElementById("bt-help-show")
+);
+
+const langEnBtn = /** @type {HTMLButtonElement} */ (
+  document.getElementById("lang-en")
+);
+const langDeBtn = /** @type {HTMLButtonElement} */ (
+  document.getElementById("lang-de")
 );
 
 const logToggle = /** @type {HTMLInputElement}   */ (
@@ -174,15 +182,17 @@ serial.setLogger(log);
 
 // ─── Serial status ───────────────────────────────────────────────────────────
 
+/** Track current connection state so localechange can re-apply translated text. */
+let _connectionStatus = "disconnected";
+
 serial.onStatusChange = (status) => {
+  _connectionStatus = status;
   switch (status) {
     case "connected":
       statusDot.className = "status-dot bg-green-500";
-      statusText.textContent = serial.deviceName
-        ? `${serial.deviceName}`
-        : "Connected";
+      statusText.textContent = serial.deviceName ?? t("status.connected");
       log("ok", "Connected:", serial.deviceName ?? "Serial Port");
-      connectBtn.textContent = "Disconnect";
+      connectBtn.textContent = t("header.disconnect");
       connectBtn.classList.replace("bg-blue-600", "bg-red-600");
       connectBtn.classList.replace("hover:bg-blue-700", "hover:bg-red-700");
       printBtn.disabled = false;
@@ -192,7 +202,7 @@ serial.onStatusChange = (status) => {
 
     case "reconnecting":
       statusDot.className = "status-dot bg-yellow-500 animate-pulse";
-      statusText.textContent = "Reconnecting…";
+      statusText.textContent = t("status.reconnecting");
       printBtn.disabled = true;
       cutBtn.disabled = true;
       queryBtn.disabled = true;
@@ -201,8 +211,8 @@ serial.onStatusChange = (status) => {
     case "disconnected":
     default:
       statusDot.className = "status-dot bg-red-500";
-      statusText.textContent = "Disconnected";
-      connectBtn.textContent = "Connect Printer";
+      statusText.textContent = t("status.disconnected");
+      connectBtn.textContent = t("header.connect");
       connectBtn.classList.replace("bg-red-600", "bg-blue-600");
       connectBtn.classList.replace("hover:bg-red-700", "hover:bg-blue-700");
       printBtn.disabled = true;
@@ -212,6 +222,11 @@ serial.onStatusChange = (status) => {
       break;
   }
 };
+
+// Re-apply dynamic text when the user switches locale.
+document.addEventListener("localechange", () => {
+  serial.onStatusChange?.(_connectionStatus);
+});
 
 // ─── Connect / disconnect ────────────────────────────────────────────────────
 
@@ -223,7 +238,7 @@ connectBtn.addEventListener("click", async () => {
   }
 
   connectBtn.disabled = true;
-  connectBtn.textContent = "Connecting…";
+  connectBtn.textContent = t("header.connecting");
   log("info", "Requesting serial port…");
   try {
     const name = await serial.connect();
@@ -231,7 +246,7 @@ connectBtn.addEventListener("click", async () => {
   } catch (err) {
     console.error("Connection failed:", err);
     log("error", "Connection failed:", err.message);
-    showToast(`Connection failed: ${err.message}`, "error");
+    showToast(t("toast.connection_failed", { msg: err.message }), "error");
     serial.onStatusChange?.("disconnected");
   } finally {
     connectBtn.disabled = false;
@@ -451,6 +466,19 @@ function loadSettings() {
 // Restore saved settings before the first render.
 loadSettings();
 
+// ─── Language switcher ──────────────────────────────────────────────────────
+
+/** Reflect the active locale in the flag buttons via aria-pressed. */
+function updateLangButtons() {
+  const active = getLocale();
+  langEnBtn.setAttribute("aria-pressed", String(active === "en"));
+  langDeBtn.setAttribute("aria-pressed", String(active === "de"));
+}
+
+langEnBtn.addEventListener("click", () => setLocale("en"));
+langDeBtn.addEventListener("click", () => setLocale("de"));
+document.addEventListener("localechange", updateLangButtons);
+
 // ─── Bluetooth help box ───────────────────────────────────────────────────────
 
 btHelpDismiss.addEventListener("click", () => {
@@ -536,12 +564,12 @@ resizeObserver.observe(document.getElementById("preview-area"));
 
 printBtn.addEventListener("click", async () => {
   if (!serial.isConnected()) {
-    showToast("Please connect to the printer first.", "error");
+    showToast(t("toast.not_connected"), "error");
     return;
   }
 
   printBtn.disabled = true;
-  printBtn.textContent = "⏳ Printing…";
+  printBtn.textContent = t("print.printing");
 
   try {
     renderLabel(); // ensure latest render
@@ -567,14 +595,14 @@ printBtn.addEventListener("click", async () => {
 
     await serial.sendData(buffer);
 
-    showToast("Print job sent ✓", "success");
+    showToast(t("toast.print_sent"), "success");
     log("ok", "Print job sent.");
-    printBtn.textContent = "🖨 Print Label";
+    printBtn.textContent = t("print.print_btn");
   } catch (err) {
     console.error("Print failed:", err);
     log("error", "Print failed:", err.message);
-    showToast(`Print error: ${err.message}`, "error");
-    printBtn.textContent = "🖨 Print Label";
+    showToast(t("toast.print_error", { msg: err.message }), "error");
+    printBtn.textContent = t("print.print_btn");
   } finally {
     printBtn.disabled = false;
   }
@@ -584,7 +612,7 @@ printBtn.addEventListener("click", async () => {
 
 queryBtn.addEventListener("click", async () => {
   if (!serial.isConnected()) {
-    showToast("Please connect to the printer first.", "error");
+    showToast(t("toast.not_connected"), "error");
     return;
   }
 
@@ -605,7 +633,7 @@ queryBtn.addEventListener("click", async () => {
     const info = parseStatusResponse(response);
     if (!info) {
       log("warn", "Invalid status response — unexpected header bytes.");
-      showToast("Invalid status response", "error");
+      showToast(t("toast.invalid_status"), "error");
       return;
     }
 
@@ -630,7 +658,7 @@ queryBtn.addEventListener("click", async () => {
     }
   } catch (err) {
     log("error", "Query failed:", err.message);
-    showToast(`Query error: ${err.message}`, "error");
+    showToast(t("toast.query_error", { msg: err.message }), "error");
   } finally {
     queryBtn.disabled = false;
   }
@@ -640,7 +668,7 @@ queryBtn.addEventListener("click", async () => {
 
 cutBtn.addEventListener("click", async () => {
   if (!serial.isConnected()) {
-    showToast("Please connect to the printer first.", "error");
+    showToast(t("toast.not_connected"), "error");
     return;
   }
 
@@ -652,11 +680,11 @@ cutBtn.addEventListener("click", async () => {
     );
     log("info", `Sending cut command (${tapeMm} mm tape)…`);
     await serial.sendData(buildCutJob(tapeMm));
-    showToast("Tape cut ✓", "success");
+    showToast(t("toast.cut_sent"), "success");
     log("ok", "Cut sent.");
   } catch (err) {
     log("error", "Cut failed:", err.message);
-    showToast(`Cut error: ${err.message}`, "error");
+    showToast(t("toast.cut_error", { msg: err.message }), "error");
   } finally {
     cutBtn.disabled = false;
   }
@@ -705,4 +733,7 @@ function showToast(message, type = "info") {
 
 // ─── Initialise ──────────────────────────────────────────────────────────────
 
+applyTranslations();
+updateLangButtons();
+serial.onStatusChange?.(_connectionStatus); // apply translated initial status
 renderLabel();

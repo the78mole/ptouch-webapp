@@ -1,0 +1,72 @@
+{
+  "header": {
+    "connect": "Connect Printer",
+    "disconnect": "Disconnect",
+    "connecting": "Connecting\u2026",
+    "log": "Log",
+    "help": "Help"
+  },
+  "status": {
+    "disconnected": "Disconnected",
+    "connected": "Connected",
+    "reconnecting": "Reconnecting\u2026"
+  },
+  "preview": {
+    "title": "Live Preview"
+  },
+  "bt_help": {
+    "title": "Bluetooth Connection (Linux)",
+    "step1": "Power on &amp; pair printer: <span class=\"font-mono text-blue-100\">bluetoothctl</span> &rarr; <span class=\"font-mono text-blue-100\">pair &lt;MAC&gt;</span>",
+    "step2": "Establish serial connection: <span class=\"font-mono text-blue-100\">sudo rfcomm connect 0 &lt;MAC&gt; 1</span> &nbsp;&mdash;&nbsp;or via GNOME Bluetooth &rsaquo; <em>Serial connect</em>",
+    "step3": "Click <strong class=\"text-blue-100\">Connect Printer</strong> in this app and select the entry <span class=\"font-mono text-blue-100\">/dev/rfcomm0</span> (or <span class=\"font-mono text-blue-100\">rfcomm1&hellip;</span>).",
+    "tip": "Tip: Pairing is needed only once &mdash; afterwards start from step&nbsp;2."
+  },
+  "label": {
+    "title": "Label Content",
+    "text": "Text",
+    "text_placeholder": "Enter label text\u2026\n(newlines supported)",
+    "font_size": "Font Size",
+    "bold": "Bold",
+    "qr_code": "QR Code",
+    "qr_off": "Off",
+    "qr_left": "Left",
+    "qr_right": "Right",
+    "qr_ec": "Error Correction",
+    "qr_placeholder": "URL or text for QR code\u2026"
+  },
+  "tape": {
+    "title": "Tape & Print",
+    "width": "Tape Width",
+    "not_queried": "Not queried",
+    "query_btn": "\ud83d\udd0d Query",
+    "query_title": "Read tape & media info from printer",
+    "half_cut": "Half-Cut Between Labels",
+    "half_cut_desc": "Partial cut for easy tear-off",
+    "chain_print": "Chain Printing",
+    "chain_print_desc": "Minimise tape waste between copies",
+    "copies": "Copies",
+    "copies_dec_aria": "Decrease copies",
+    "copies_inc_aria": "Increase copies"
+  },
+  "print": {
+    "print_btn": "\ud83d\udda8 Print Label",
+    "printing": "\u23f3 Printing\u2026",
+    "cut_btn": "\u2702 Cut",
+    "cut_title": "Feed and cut tape (no printing)",
+    "web_serial_hint": "Web Serial requires <strong class=\"text-zinc-500\">HTTPS</strong> or <code class=\"text-zinc-500\">localhost</code> and Chrome / Edge / Opera."
+  },
+  "log": {
+    "title": "Debug Log",
+    "clear": "Clear"
+  },
+  "toast": {
+    "not_connected": "Please connect to the printer first.",
+    "print_sent": "Print job sent \u2713",
+    "print_error": "Print error: {{msg}}",
+    "cut_sent": "Tape cut \u2713",
+    "cut_error": "Cut error: {{msg}}",
+    "invalid_status": "Invalid status response",
+    "query_error": "Query error: {{msg}}",
+    "connection_failed": "Connection failed: {{msg}}"
+  }
+}

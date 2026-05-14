@@ -11,9 +11,19 @@
 
   <!-- ─── Header ─────────────────────────────────────────────────── -->
   <header class="sticky top-0 z-20 bg-zinc-900/90 backdrop-blur border-b border-zinc-800
-                 px-4 py-3 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-2 min-w-0">
-      <!-- Printer icon -->
+                 px-4 py-3 flex items-center gap-4">
+
+    <!-- Left: version badge -->
+    <div class="flex-1 flex items-center min-w-0">
+      <span id="app-version"
+            class="text-[0.65rem] font-mono text-zinc-400 bg-zinc-800
+                   border border-zinc-600 rounded px-1.5 py-0.5
+                   whitespace-nowrap"
+            aria-label="App version"></span>
+    </div>
+
+    <!-- Center: printer icon + title -->
+    <div class="flex items-center gap-2 shrink-0">
       <svg class="w-6 h-6 shrink-0 text-blue-400" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="1.75"
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -22,15 +32,26 @@
         <path d="M6 18v3h12v-3"/>
         <circle cx="17.5" cy="13.5" r="1"/>
       </svg>
-      <h1 class="text-base font-semibold truncate">P-Touch Label Designer</h1>
-      <span id="app-version"
-            class="text-[0.65rem] font-mono text-zinc-400 bg-zinc-800
-                   border border-zinc-600 rounded px-1.5 py-0.5 shrink-0
-                   whitespace-nowrap"
-            aria-label="App version"></span>
+      <h1 class="text-base font-semibold whitespace-nowrap">P-Touch Label Designer</h1>
     </div>
 
-    <div class="flex items-center gap-3 shrink-0">
+    <!-- Right: lang switcher + controls -->
+    <div class="flex-1 flex items-center justify-end gap-3 shrink-0">
+
+      <!-- Language switcher -->
+      <div class="flex items-center gap-0.5" role="group" aria-label="Language">
+        <button id="lang-en"
+                class="lang-btn rounded px-1 py-0.5 text-xl leading-none
+                       transition-all focus-visible:outline-2 focus-visible:outline-blue-400"
+                aria-pressed="false"
+                title="English" aria-label="Switch to English">🇺🇸</button>
+        <button id="lang-de"
+                class="lang-btn rounded px-1 py-0.5 text-xl leading-none
+                       transition-all focus-visible:outline-2 focus-visible:outline-blue-400"
+                aria-pressed="false"
+                title="Deutsch" aria-label="Auf Deutsch umschalten">🇩🇪</button>
+      </div>
+
       <!-- Connection status indicator -->
       <div class="hidden sm:flex items-center gap-2">
         <span id="status-dot"
@@ -40,6 +61,7 @@
       </div>
 
       <button id="connect-btn"
+              data-i18n="header.connect"
               class="px-3 py-1.5 text-sm font-medium rounded-lg
                      bg-blue-600 hover:bg-blue-700 active:bg-blue-800
                      text-white transition-colors focus-visible:outline-2
@@ -57,7 +79,7 @@
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M8 7h8M8 11h8M8 15h5"/>
         </svg>
-        <span class="text-xs text-zinc-400 hidden sm:inline">Log</span>
+        <span class="text-xs text-zinc-400 hidden sm:inline" data-i18n="header.log">Log</span>
       </label>
 
       <!-- GitHub link -->
@@ -92,7 +114,7 @@
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 16v-4M12 8h.01"/>
         </svg>
-        <span class="text-xs hidden sm:inline">Help</span>
+        <span class="text-xs hidden sm:inline" data-i18n="header.help">Help</span>
       </button>
     </div>
   </header>
@@ -102,7 +124,7 @@
 
     <!-- Live Preview -->
     <section class="bg-zinc-900 rounded-2xl border border-zinc-800 p-4">
-      <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-3">Live Preview</p>
+      <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-3" data-i18n="preview.title">Live Preview</p>
 
       <div id="preview-area"
            class="flex items-center justify-center bg-zinc-800 rounded-xl
@@ -131,7 +153,7 @@
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 16v-4M12 8h.01"/>
           </svg>
-          <p class="text-sm font-medium text-blue-300">Bluetooth Connection (Linux)</p>
+          <p class="text-sm font-medium text-blue-300" data-i18n="bt_help.title">Bluetooth Connection (Linux)</p>
         </div>
         <button id="bt-help-dismiss"
                 class="text-blue-500 hover:text-blue-300 transition-colors shrink-0"
@@ -145,24 +167,24 @@
       </div>
 
       <ol class="mt-3 space-y-1.5 text-xs text-blue-200/80 list-decimal list-inside">
-        <li>
+        <li data-i18n-html="bt_help.step1">
           Drucker einschalten &amp; pairen:
           <span class="font-mono text-blue-100">bluetoothctl</span> &rarr;
           <span class="font-mono text-blue-100">pair &lt;MAC&gt;</span>
         </li>
-        <li>
+        <li data-i18n-html="bt_help.step2">
           Serielle Verbindung herstellen:
           <span class="font-mono text-blue-100">sudo rfcomm connect 0 &lt;MAC&gt; 1</span>
           &nbsp;&mdash;&nbsp;oder via GNOME Bluetooth &rsaquo; <em>Serial verbinden</em>
         </li>
-        <li>
+        <li data-i18n-html="bt_help.step3">
           In dieser App auf <strong class="text-blue-100">Connect Printer</strong> klicken
           und den Eintrag <span class="font-mono text-blue-100">/dev/rfcomm0</span>
           (oder <span class="font-mono text-blue-100">rfcomm1&hellip;</span>) ausw&auml;hlen.
         </li>
       </ol>
 
-      <p class="mt-2 text-xs text-blue-400/70">
+      <p class="mt-2 text-xs text-blue-400/70" data-i18n-html="bt_help.tip">
         Tipp: Einmal pairen gen&uuml;gt &mdash; danach reicht ab Schritt&nbsp;2.
       </p>
     </section>
@@ -172,24 +194,25 @@
 
       <!-- Label Content -->
       <section class="bg-zinc-900 rounded-2xl border border-zinc-800 p-4 space-y-4">
-        <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest">Label Content</p>
+        <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest" data-i18n="label.title">Label Content</p>
 
         <!-- Text input -->
         <div class="space-y-1">
-          <label for="label-text" class="text-xs text-zinc-400">Text</label>
+          <label for="label-text" class="text-xs text-zinc-400" data-i18n="label.text">Text</label>
           <textarea id="label-text"
                     class="w-full bg-zinc-800 border border-zinc-700 rounded-lg
                            px-3 py-2 text-sm text-zinc-100 font-mono
                            placeholder-zinc-600 resize-none
                            focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows="3"
+                    data-i18n-placeholder="label.text_placeholder"
                     placeholder="Enter label text…&#10;(newlines supported)">P-Touch Label</textarea>
         </div>
 
         <!-- Font size -->
         <div class="space-y-1">
           <div class="flex justify-between text-xs text-zinc-400">
-            <label for="font-size">Font Size</label>
+            <label for="font-size" data-i18n="label.font_size">Font Size</label>
             <span id="font-size-value" class="font-mono text-blue-400">36px</span>
           </div>
           <input id="font-size" type="range" min="8" max="110" value="36"
@@ -198,7 +221,7 @@
 
         <!-- Bold toggle -->
         <div class="flex items-center justify-between">
-          <span class="text-sm text-zinc-300">Bold</span>
+          <span class="text-sm text-zinc-300" data-i18n="label.bold">Bold</span>
           <label class="flex items-center gap-0">
             <input id="bold-toggle" type="checkbox" class="toggle-input sr-only" />
             <span class="toggle-track" aria-hidden="true"></span>
@@ -208,25 +231,25 @@
         <!-- QR code -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <label class="text-sm text-zinc-300">QR Code</label>
+            <label class="text-sm text-zinc-300" data-i18n="label.qr_code">QR Code</label>
             <div class="flex gap-1 text-xs">
               <label class="qr-pill relative">
                 <input type="radio" name="qr-pos" value="off" checked />
-                <span>Off</span>
+                <span data-i18n="label.qr_off">Off</span>
               </label>
               <label class="qr-pill relative">
                 <input type="radio" name="qr-pos" value="left" />
-                <span>Left</span>
+                <span data-i18n="label.qr_left">Left</span>
               </label>
               <label class="qr-pill relative">
                 <input type="radio" name="qr-pos" value="right" />
-                <span>Right</span>
+                <span data-i18n="label.qr_right">Right</span>
               </label>
             </div>
           </div>
           <!-- Error Correction level -->
           <div class="flex items-center justify-between">
-            <label class="text-xs text-zinc-400">Error Correction</label>
+            <label class="text-xs text-zinc-400" data-i18n="label.qr_ec">Error Correction</label>
             <div class="flex gap-1 text-xs">
               <label class="qr-pill relative">
                 <input type="radio" name="qr-ec" value="L" />
@@ -249,6 +272,7 @@
 
           <input id="qr-text"
                  type="text"
+                 data-i18n-placeholder="label.qr_placeholder"
                  placeholder="URL or text for QR code…"
                  class="w-full bg-zinc-800 border border-zinc-700 rounded-lg
                         px-3 py-2 text-sm text-zinc-100 font-mono
@@ -261,11 +285,11 @@
 
       <!-- Tape & Print Settings -->
       <section class="bg-zinc-900 rounded-2xl border border-zinc-800 p-4 space-y-4">
-        <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest">Tape &amp; Print</p>
+        <p class="text-xs font-medium text-zinc-500 uppercase tracking-widest" data-i18n="tape.title">Tape &amp; Print</p>
 
         <!-- Tape width -->
         <div class="space-y-2">
-          <p class="text-xs text-zinc-400">Tape Width</p>
+          <p class="text-xs text-zinc-400" data-i18n="tape.width">Tape Width</p>
           <div class="grid grid-cols-3 gap-2">
             <label class="tape-pill relative">
               <input type="radio" name="tape-size" value="12" />
@@ -283,11 +307,14 @@
           <!-- Printer tape info row -->
           <div class="flex items-center justify-between gap-2 pt-0.5">
             <span id="tape-info"
-                  class="text-xs text-zinc-600 italic truncate">Not queried</span>
+                  class="text-xs text-zinc-600 italic truncate"
+                  data-i18n="tape.not_queried">Not queried</span>
             <button id="query-btn" disabled
                     class="shrink-0 px-2.5 py-1 text-xs rounded-lg border border-zinc-700
                            bg-zinc-800 text-zinc-400 hover:bg-zinc-700
                            disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    data-i18n="tape.query_btn"
+                    data-i18n-title="tape.query_title"
                     title="Read tape &amp; media info from printer">
               🔍 Query
             </button>
@@ -297,8 +324,8 @@
         <!-- Half-cut toggle -->
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm text-zinc-300 leading-tight">Half-Cut Between Labels</p>
-            <p class="text-xs text-zinc-600 mt-0.5">Partial cut for easy tear-off</p>
+            <p class="text-sm text-zinc-300 leading-tight" data-i18n="tape.half_cut">Half-Cut Between Labels</p>
+            <p class="text-xs text-zinc-600 mt-0.5" data-i18n="tape.half_cut_desc">Partial cut for easy tear-off</p>
           </div>
           <label class="flex items-center gap-0 mt-0.5 shrink-0">
             <input id="half-cut" type="checkbox" class="toggle-input sr-only" />
@@ -309,8 +336,8 @@
         <!-- Chain printing toggle -->
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm text-zinc-300 leading-tight">Chain Printing</p>
-            <p class="text-xs text-zinc-600 mt-0.5">Minimise tape waste between copies</p>
+            <p class="text-sm text-zinc-300 leading-tight" data-i18n="tape.chain_print">Chain Printing</p>
+            <p class="text-xs text-zinc-600 mt-0.5" data-i18n="tape.chain_print_desc">Minimise tape waste between copies</p>
           </div>
           <label class="flex items-center gap-0 mt-0.5 shrink-0">
             <input id="chain-print" type="checkbox" class="toggle-input sr-only" />
@@ -320,12 +347,13 @@
 
         <!-- Copies -->
         <div class="space-y-1">
-          <p class="text-xs text-zinc-400">Copies</p>
+          <p class="text-xs text-zinc-400" data-i18n="tape.copies">Copies</p>
           <div class="flex items-center gap-2">
             <button id="copies-dec"
                     class="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800
                            text-zinc-300 hover:bg-zinc-700 text-xl leading-none
                            flex items-center justify-center transition-colors"
+                    data-i18n-aria="tape.copies_dec_aria"
                     aria-label="Decrease copies">−</button>
             <input id="copies" type="number" min="1" max="99" value="1"
                    class="w-16 text-center bg-zinc-800 border border-zinc-700 rounded-lg
@@ -335,6 +363,7 @@
                     class="w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800
                            text-zinc-300 hover:bg-zinc-700 text-xl leading-none
                            flex items-center justify-center transition-colors"
+                    data-i18n-aria="tape.copies_inc_aria"
                     aria-label="Increase copies">+</button>
           </div>
         </div>
@@ -345,6 +374,7 @@
     <section class="bg-zinc-900 rounded-2xl border border-zinc-800 p-4 space-y-3">
       <div class="flex flex-col sm:flex-row gap-3">
         <button id="print-btn" disabled
+                data-i18n="print.print_btn"
                 class="flex-1 py-3 px-6 rounded-xl font-semibold text-sm text-white
                        bg-blue-600 hover:bg-blue-700 active:bg-blue-800
                        disabled:opacity-40 disabled:cursor-not-allowed
@@ -353,6 +383,8 @@
           🖨 Print Label
         </button>
         <button id="cut-btn" disabled
+                data-i18n="print.cut_btn"
+                data-i18n-title="print.cut_title"
                 class="py-3 px-5 rounded-xl font-medium text-sm text-zinc-300
                        bg-zinc-800 hover:bg-zinc-700 border border-zinc-700
                        disabled:opacity-40 disabled:cursor-not-allowed
@@ -363,7 +395,7 @@
         </button>
       </div>
 
-      <p class="text-xs text-zinc-600 text-center">
+      <p class="text-xs text-zinc-600 text-center" data-i18n-html="print.web_serial_hint">
         Web Serial requires <strong class="text-zinc-500">HTTPS</strong> or
         <code class="text-zinc-500">localhost</code> and Chrome / Edge / Opera.
       </p>
@@ -380,8 +412,9 @@
        style="height:220px">
     <div class="flex items-center justify-between px-3 py-1.5
                 border-b border-zinc-800 shrink-0">
-      <span class="text-xs font-semibold text-zinc-400 uppercase tracking-widest">Debug Log</span>
+      <span class="text-xs font-semibold text-zinc-400 uppercase tracking-widest" data-i18n="log.title">Debug Log</span>
       <button id="log-clear"
+              data-i18n="log.clear"
               class="text-xs text-zinc-500 hover:text-zinc-200 transition-colors px-2 py-0.5
                      rounded border border-zinc-700 hover:border-zinc-500">
         Clear

@@ -1,0 +1,72 @@
+{
+  "header": {
+    "connect": "Drucker verbinden",
+    "disconnect": "Trennen",
+    "connecting": "Verbinde\u2026",
+    "log": "Log",
+    "help": "Hilfe"
+  },
+  "status": {
+    "disconnected": "Getrennt",
+    "connected": "Verbunden",
+    "reconnecting": "Verbinde neu\u2026"
+  },
+  "preview": {
+    "title": "Vorschau"
+  },
+  "bt_help": {
+    "title": "Bluetooth-Verbindung (Linux)",
+    "step1": "Drucker einschalten &amp; pairen: <span class=\"font-mono text-blue-100\">bluetoothctl</span> &rarr; <span class=\"font-mono text-blue-100\">pair &lt;MAC&gt;</span>",
+    "step2": "Serielle Verbindung herstellen: <span class=\"font-mono text-blue-100\">sudo rfcomm connect 0 &lt;MAC&gt; 1</span> &nbsp;&mdash;&nbsp;oder via GNOME Bluetooth &rsaquo; <em>Serial verbinden</em>",
+    "step3": "In dieser App auf <strong class=\"text-blue-100\">Drucker verbinden</strong> klicken und den Eintrag <span class=\"font-mono text-blue-100\">/dev/rfcomm0</span> (oder <span class=\"font-mono text-blue-100\">rfcomm1&hellip;</span>) ausw&auml;hlen.",
+    "tip": "Tipp: Einmal pairen gen&uuml;gt &mdash; danach reicht ab Schritt&nbsp;2."
+  },
+  "label": {
+    "title": "Etikett-Inhalt",
+    "text": "Text",
+    "text_placeholder": "Etikettentext eingeben\u2026\n(Zeilenumbr\u00fcche m\u00f6glich)",
+    "font_size": "Schriftgr\u00f6\u00dfe",
+    "bold": "Fett",
+    "qr_code": "QR-Code",
+    "qr_off": "Aus",
+    "qr_left": "Links",
+    "qr_right": "Rechts",
+    "qr_ec": "Fehlerkorrektur",
+    "qr_placeholder": "URL oder Text f\u00fcr QR-Code\u2026"
+  },
+  "tape": {
+    "title": "Band & Druck",
+    "width": "Bandbreite",
+    "not_queried": "Nicht abgefragt",
+    "query_btn": "\ud83d\udd0d Abfragen",
+    "query_title": "Band- und Medieninfo vom Drucker lesen",
+    "half_cut": "Halbschnitt zwischen Etiketten",
+    "half_cut_desc": "Teildurchschnitt f\u00fcr leichtes Abrei\u00dfen",
+    "chain_print": "Kettendruck",
+    "chain_print_desc": "Bandverschwendung zwischen Kopien minimieren",
+    "copies": "Kopien",
+    "copies_dec_aria": "Kopien verringern",
+    "copies_inc_aria": "Kopien erh\u00f6hen"
+  },
+  "print": {
+    "print_btn": "\ud83d\udda8 Etikett drucken",
+    "printing": "\u23f3 Drucke\u2026",
+    "cut_btn": "\u2702 Schneiden",
+    "cut_title": "Band einziehen und schneiden (kein Druck)",
+    "web_serial_hint": "Web Serial ben\u00f6tigt <strong class=\"text-zinc-500\">HTTPS</strong> oder <code class=\"text-zinc-500\">localhost</code> sowie Chrome / Edge / Opera."
+  },
+  "log": {
+    "title": "Debug-Log",
+    "clear": "Leeren"
+  },
+  "toast": {
+    "not_connected": "Bitte erst Drucker verbinden.",
+    "print_sent": "Druckauftrag gesendet \u2713",
+    "print_error": "Druckfehler: {{msg}}",
+    "cut_sent": "Band geschnitten \u2713",
+    "cut_error": "Schneidefehler: {{msg}}",
+    "invalid_status": "Ung\u00fcltige Statusantwort",
+    "query_error": "Abfragefehler: {{msg}}",
+    "connection_failed": "Verbindung fehlgeschlagen: {{msg}}"
+  }
+}
