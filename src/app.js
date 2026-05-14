@@ -10,6 +10,14 @@ import { BluetoothManager }               from './bluetooth.js';
 import { buildPrintJob, buildFinalizeJob,
          TAPE_CONFIG, PRINT_DPI }          from './protocol.js';
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Extra horizontal dot padding added to each side of the measured text width */
+const LABEL_H_PADDING_DOTS = 20;
+
+/** Minimum label width in dots regardless of text length */
+const LABEL_MIN_WIDTH_DOTS = 40;
+
 // ─── Bluetooth manager ───────────────────────────────────────────────────────
 
 const bt = new BluetoothManager();
@@ -133,7 +141,7 @@ function renderLabel() {
   const lines = text.split('\n');
   const lineHeight = Math.ceil(fontSize * 1.25);
   const textW  = Math.max(...lines.map(l => Math.ceil(probe.measureText(l).width)));
-  const labelW = Math.max(textW + 20, 40);   // minimum 40 dots wide
+  const labelW = Math.max(textW + LABEL_H_PADDING_DOTS, LABEL_MIN_WIDTH_DOTS);
   const labelH = tapeDots;
 
   // ── Draw on the hidden render canvas ──
