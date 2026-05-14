@@ -75,6 +75,39 @@ For deployment, host the `dist/` folder on any HTTPS-capable static host
 
 ---
 
+## Deployment — GitHub Pages
+
+The app is automatically deployed to
+**<https://the78mole.github.io/ptouch-webapp/>** via the
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) workflow.
+
+### One-time repository setup
+
+1. Go to **Settings → Pages** in the GitHub repository.
+2. Under *Build and deployment / Source*, select **GitHub Actions** (not the
+   legacy "Deploy from a branch" option).
+3. Save. That's it — no `gh-pages` branch needed.
+
+### Automated deployments
+
+| Trigger | Action |
+|---|---|
+| Push to `main` | Build + deploy automatically |
+| Manual | **Actions → Deploy to GitHub Pages → Run workflow** |
+
+The workflow uses three official GitHub Actions:
+
+```
+actions/configure-pages        — reads Pages settings, injects base URL
+actions/upload-pages-artifact  — packages dist/ as a Pages artifact
+actions/deploy-pages           — publishes the artifact to GitHub Pages
+```
+
+Only one deployment runs at a time; a newer push automatically cancels any
+in-progress run (`concurrency: group: pages, cancel-in-progress: true`).
+
+---
+
 ## Project Structure
 
 ```
