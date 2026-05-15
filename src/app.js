@@ -29,10 +29,11 @@ const LABEL_MIN_WIDTH_DOTS = 40;
 // ─── App version (injected at build time by vite.config.js define) ───────────
 /* global __APP_VERSION__, __APP_BUILD_DATE__ */
 
+const _versionText = `${__APP_VERSION__} · ${__APP_BUILD_DATE__}`;
 const appVersionEl = document.getElementById("app-version");
-if (appVersionEl) {
-  appVersionEl.textContent = `${__APP_VERSION__} · ${__APP_BUILD_DATE__}`;
-}
+const appVersionMobileEl = document.getElementById("app-version-mobile");
+if (appVersionEl) appVersionEl.textContent = _versionText;
+if (appVersionMobileEl) appVersionMobileEl.textContent = _versionText;
 
 // ─── Serial manager ─────────────────────────────────────────────────────────
 
