@@ -143,6 +143,9 @@ const previewCanvas = /** @type {HTMLCanvasElement}  */ (
 const renderCanvas = /** @type {HTMLCanvasElement}  */ (
   document.getElementById("render-canvas")
 );
+const scaleInfoEl = /** @type {HTMLParagraphElement} */ (
+  document.getElementById("scale-info")
+);
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -339,8 +342,19 @@ async function renderLabel() {
     textW + LABEL_H_PADDING_DOTS,
     LABEL_MIN_WIDTH_DOTS,
   );
-  const labelW = textAreaW + (qrCanvas ? qrBlockW : 0);
+  const qrRightExtra = qrCanvas && qrPos === "right" ? 4 : 0;
+  const labelW = textAreaW + (qrCanvas ? qrBlockW : 0) + qrRightExtra;
   const labelH = tapeDots;
+
+  // ── Update dimension display ──
+  const labelLengthMm = Math.round((labelW * 25.4) / PRINT_DPI);
+  if (scaleInfoEl) {
+    scaleInfoEl.innerHTML = `<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+         <path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4"/>
+       </svg>
+       <span>${labelLengthMm}&thinsp;×&thinsp;${tapeMm}&thinsp;mm</span>`;
+  }
 
   // ── Draw on the hidden render canvas ──
   renderCanvas.width = labelW;
