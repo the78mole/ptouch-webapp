@@ -90,27 +90,25 @@ export function buildMediaCommand(tapeMm, rasterLines) {
 }
 
 /**
- * ESC i K — cut-mode command.
+ * ESC i K — chain command (D460BT-style).
  *
- * @param {boolean} halfCut - true → half-cut after this label
+ * 0x00 = chain mode: feed only, no cut (ptouch_send_d460bt_chain in libptouch).
+ * ESC i K 0x08 is NOT used for half-cut on the PT-E560BT.
  */
-export function buildCutCommand(halfCut) {
-  return new Uint8Array([0x1b, 0x69, 0x4b, halfCut ? 0x08 : 0x00]);
+export function buildCutCommand() {
+  return new Uint8Array([0x1b, 0x69, 0x4b, 0x00]);
 }
 
 /**
  * ESC i M — print-mode command.
  *
- * bit 6 (0x40): mirror print (do NOT set — mirrors the image)
- * bit 3 (0x08): special tape cut options (model-dependent)
+ * bit 6 (0x40): pre-cut / half-cut mark before printing (ptouch_send_precut_cmd in libptouch)
+ * 0x00: normal mode (no pre-cut)
  *
- * Use 0x00 for both normal and chain printing; the eject/print command
- * (0x1A / 0x0C) controls whether a cut follows.
- *
- * @param {boolean} _chain - reserved for future use
+ * @param {boolean} precut - true → send 0x40 (half-cut mark); false → send 0x00
  */
-export function buildModeCommand(_chain) {
-  return new Uint8Array([0x1b, 0x69, 0x4d, 0x00]);
+export function buildModeCommand(precut = false) {
+  return new Uint8Array([0x1b, 0x69, 0x4d, precut ? 0x40 : 0x00]);
 }
 
 /** ESC i A 0x00 — disable raster-data compression */
@@ -261,6 +259,9 @@ export function buildPrintJob(canvas, settings) {
   // ── Per-copy section (rasterstart + info + magic + data + eject per copy) ──
   for (let copy = 0; copy < copies; copy++) {
     const isLastCopy = copy === copies - 1;
+    // Between copies: chain only when half-cut is NOT requested.
+    // Intermediate copies always use chain mode (no full cut between labels).
+    // The final copy uses chain mode only if explicitly requested.
     const chainThisLabel = isLastCopy ? chain : true;
 
     // 1. Switch to raster mode (FLAG_P700_INIT style)
@@ -269,14 +270,15 @@ export function buildPrintJob(canvas, settings) {
     parts.push(buildMediaCommand(tapeMm, totalLines));
     // 3. D460BT magic — MUST be sent before raster data (FLAG_D460BT_MAGIC)
     parts.push(buildD460btMagic()); // 1B 69 64 01 00 4D 00
-    // 4. Cut-mode signal (ESC i K) — sent before raster data:
-    //   0x00 = chain/no-cut  (D460BT: omit cut, feed only)
-    //   0x08 = half-cut      (perforation, no full cut)
-    //   omitting ESC i K    = full cut via 0x1A below
+    // 4. Half-cut / pre-cut (ESC i M 0x40) — like ptouch_send_precut_cmd() in libptouch.
+    //    Sent BEFORE the chain command so the printer scores the tape at the cut point.
+    if (halfCut) {
+      parts.push(buildModeCommand(true)); // 1B 69 4D 40 = pre-cut / half-cut mark
+    }
+    // 5. Chain command (ESC i K 0x00) — like ptouch_send_d460bt_chain() in libptouch.
+    //    Omitting this command causes a full cut via the 0x1A eject below.
     if (chainThisLabel) {
-      parts.push(buildCutCommand(false)); // 1B 69 4B 00 = chain (no cut)
-    } else if (halfCut) {
-      parts.push(buildCutCommand(true)); // 1B 69 4B 08 = half cut
+      parts.push(buildCutCommand()); // 1B 69 4B 00 = chain (no full cut)
     }
 
     // 5. Raster data
@@ -453,9 +455,10 @@ export function buildCutJob(tapeMm = 24) {
   const parts = [
     buildInvalidation(), // 100×0x00 + ESC @ — reset state
     buildRasterMode(), // 1B 69 61 01
-    buildMediaCommand(tapeMm, 0), // 0 raster lines → nothing to print
+    buildMediaCommand(tapeMm, 1), // 1 blank raster line — printer must see data before eject
     buildD460btMagic(), // 1B 69 64 01 00 4D 00
-    // no ESC i K → full cut
+    // no ESC i K → full cut (device default)
+    buildEmptyLine(), // Z — one blank dot-line (≈ 0.14 mm tape advance)
     buildEject(), // 0x1A — feed + cut
   ];
   const total = parts.reduce((s, p) => s + p.length, 0);

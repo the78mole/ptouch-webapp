@@ -25,5 +25,5 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
-        types_or: [javascript, css, json, markdown, yaml]
+        types_or: [javascript, css, markdown, yaml]
         exclude: dist/
